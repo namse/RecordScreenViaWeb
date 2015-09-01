@@ -1,67 +1,80 @@
 var localMediaRecorder;
 var recordInterval = 3 * 1000; // ms
 var recordWebSocket = new WebSocket('ws://127.0.0.1:3456');
-
+var container = document.getElementById('container');
+var localStream;
 //// 녹취
 
 // 녹취를 시작하면 주기적으로 호출됨. 주기는 mediaRecorder.start(interval)함수의 매개변수로 설정
 function onRecordDataAvailable(blob, sourceType) {
-    var messgae = {
-        sourceType: sourceType,
-        audio: blob.audio,
-        video: blob.video
-    }
-    recordWebSocket.send(JSON.stringfy(message));
+	var message = {
+		sourceType: sourceType,
+		audio: blob.audio,
+		video: blob.video
+	};
+	console.log(blob.audio);
+
+	//TODO 
+
+	// blob에
+	// 헤더 붙여서 보내기
+	recordWebSocket.send(JSON.stringify(message));
 }
 
 function onLocalRecordDataAvailable(blob) {
-    onRecordDataAvailable(blob, "local");
+	onRecordDataAvailable(blob, "local");
 }
 
 function startRecord() {
-    localMediaRecorder.Start(recordInterval);
+	localMediaRecorder.start(recordInterval);
 }
 
 
 
 function startVideo() {
-    navigator.getUserMedia = navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia;
+	navigator.getUserMedia = navigator.getUserMedia ||
+		navigator.webkitGetUserMedia ||
+		navigator.mozGetUserMedia;
 
-    if (navigator.getUserMedia) {
-        navigator.getUserMedia({
-                audio: true,
-                video: {
-                    mandatory: {
-                        minWidth: 1280,
-                        minHeight: 720
-                    }
-                }
-            },
-            function(stream) {
-                var video = document.createElement('video');
+	if (navigator.getUserMedia) {
+		navigator.getUserMedia({
+				audio: true,
+				video: {
+					mandatory: {
+						minWidth: 5, //1280,
+						minHeight: 5 //720
+					}
+				}
+			},
+			function(stream) {
+				localStream = stream;
+				var video = document.createElement('video');
 
-                video = mergeProps(video, {
-                    controls: true,
-                    src: window.webkitURL.createObjectURL(stream)
-                });
+				video = mergeProps(video, {
+					controls: true,
+					src: URL.createObjectURL(stream)
+				});
+				video.addEventListener('loadedmetadata', function() {
 
-                localStream = stream;
 
-                // 로컬 스트림 녹취
-                localMediaRecorder = new MediaStreamRecorder(stream);
+					// 로컬 스트림 녹취
+					localMediaRecorder = new MultiStreamRecorder(stream);
 
-                localMediaRecorder.video = sourcevid; // to get maximum accuracy
-                localMediaRecorder.audioChannels = 1;
-                localMediaRecorder.ondataavailable = onLocalRecordDataAvailable;
-            },
-            function(err) {
-                console.error('An error occurred: [CODE ' + error.code + ']');
-            }
-        );
-    } else {
-        console.log("getUserMedia not supported");
-    }
+					//localMediaRecorder.video = video; // to get maximum accuracy
+					//localMediaRecorder.audioChannels = 1;
+					localMediaRecorder.ondataavailable = onLocalRecordDataAvailable;
+				}, false);
+
+				video.play();
+
+				container.appendChild(video);
+			},
+			function(err) {
+				console.error('An error occurred: [CODE ' + error.code + ']');
+			}
+		);
+	} else {
+		console.log("getUserMedia not supported");
+	}
 
 }
