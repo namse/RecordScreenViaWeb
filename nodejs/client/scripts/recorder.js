@@ -8,12 +8,6 @@
 		OPUS_WORKER_PATH = 'workers/EmsWorkerProxy.js',
 		commonCallback;
 
-	function VideoRecorder(stream, cfg) {
-		var config = cfg || {},
-			self = this,
-			mediaRecorder;
-	}
-
 	function OggShimRecorder(stream, cfg) {
 
 
@@ -152,14 +146,13 @@
 
 		mediaRecorder.ondataavailable = function(e) {
 			chunkId++;
-			/*callback({
+			callback({
 				autoUpload: autoUpload,
 				stop: (chunkId >= chunksRequested) && stopped,
-				type: 'webm',
+				type: 'ogg',
 				blob: e.data,
 				recorderType: recorderType
-			});*/
-			console.log(e.data);
+			});
 		}
 	};
 
@@ -172,13 +165,12 @@
 
 		config.intervalTime = config.intervalTime || 60000;
 		config.autoUpload = !!config.autoUpload;
-		config.type = 'webm';
+		config.type = 'ogg';
 		config.callback = onBlobData;
 		if (callback) commonCallback = callback;
 
 		this.start = function() {
-			//recorder = (window.MediaRecorder) ? new FoxRecorder(stream, config) : new OggShimRecorder(stream, config);
-			recorder = new FoxRecorder(stream, config);
+			recorder = (window.MediaRecorder) ? new FoxRecorder(stream, config) : new OggShimRecorder(stream, config);
 			recorder.start();
 		};
 

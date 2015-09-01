@@ -1,8 +1,7 @@
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 var recorder, input, start, stop, recordingslist, socket, autoUpload = document.getElementById('autoUpload'),
-	intervalTime = document.getElementById('intervalTime'),
-	recordRTC, btnStopRecording = document.getElementById('btnStopRecording');
+	intervalTime = document.getElementById('intervalTime');
 
 socket = io();
 socket.on('link', onServerFileReady);
@@ -23,9 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
 	stop = document.getElementById('stop');
 	recordingslist = document.getElementById('recordingslist');
 	audio_context = new AudioContext;
-
 	navigator.getUserMedia({
-		video: true
+		audio: true
 	}, function(stream) {
 		window.stream = stream;
 		start.removeAttribute('disabled');
@@ -33,21 +31,6 @@ document.addEventListener("DOMContentLoaded", function() {
 		console.log('error occoured= ' + e)
 	});
 
-	/*
-	var session = {
-		audio: true,
-		video: true
-	};
-
-	navigator.getUserMedia(session, function(mediaStream) {
-		recordRTC = RecordRTC(mediaStream);
-		recordRTC.startRecording();
-	}, function(e) {
-		console.log('error occoured= ' + e)
-	});
-	btnStopRecording.onclick = stopTest;
-*/
-	///
 	start.setAttribute('disabled', true);
 	stop.setAttribute('disabled', true);
 	start.onclick = startRecording;
@@ -87,24 +70,3 @@ function addFileLink(data) {
 	li.appendChild(hf);
 	recordingslist.appendChild(li);
 }
-
-
-
-
-
-function stopTest() {
-	console.log("stop");
-	var recordedBlob = recordRTC.getBlob();
-	//recordRTC.getDataURL(function(dataURL) { });
-	logs.innerHTML = recordedBlob;
-	console.log(recordedBlob);
-	/*
-	recordRTC.stopRecording(function(audioVideoWebMURL) {
-		//video.src = audioVideoWebMURL;
-
-		var recordedBlob = recordRTC.getBlob();
-		//recordRTC.getDataURL(function(dataURL) { });
-		logs.innerHTML = recordedBlob;
-		console.log(recordedBlob);
-	});*/
-};

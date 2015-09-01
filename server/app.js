@@ -1,35 +1,28 @@
 var express = require('express');
 var app = express();
 var open = require("open");
-var WebSocketServer = require('ws').Server;
-var bson = require("bson");
-var BSON = new bson.BSONPure.BSON();
 var mkdirp = require('mkdirp');
 var fs = require('fs');
 var path = require('path');
 var TMP_PATH = 'uploads';
+var port = 3456
+var io = require('socket.io')(port);
 
 app.use("/uploads", require('express').static(__dirname.replace('server', TMP_PATH)));
 
-var wss = new WebSocketServer({
-	port: 3457
-});
-wss.binaryType = 'blob';
 
-wss.on('connection', function connection(ws) {
+
+io.on('connection', function(socket) {
 	var index = 0;
-	ws.on('message', function incoming(message, flags) {
-		console.log(message);
-		/*var data = BSON.deserialize(message);
-
-		var audioArrayBuffer = new ArrayBuffer(data.audio);
-		saveMedia(toBuffer(audioArrayBuffer), data.id + '_' + data.date + '_audio_' + index.toString() + '.wav');
-		saveMedia(toBuffer(data.video), data.id + '_' + data.date + '_video_' + index.toString() + '.webm');
-
+	socket.on('data', function(data) {
+		console.log('I received a private message : ', data);
+		var audioArrayBuffer = new ArrayBuffer(data.blob.audio);
+		saveMedia(data.blob.audio, data.id + '_' + data.date + '_audio_' + index.toString() + '.wav');
+		saveMedia(data.blob.video, data.id + '_' + data.date + '_video_' + index.toString() + '.webm');
 		index++;
-*/
 	});
 });
+
 
 function toBuffer(ab) {
 	var buffer = new Buffer(ab.byteLength);

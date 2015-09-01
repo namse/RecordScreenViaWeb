@@ -1,7 +1,8 @@
 var BSON = bson().BSON;
 var localMediaRecorder;
-var recordInterval = 3 * 1000; // ms
-var recordWebSocket = new WebSocket('ws://127.0.0.1:3457');
+var recordInterval = 10 * 1000; // ms
+var socketIOPort = 3456;
+var socket = io('http://localhost:' + socketIOPort.toString());
 var container = document.getElementById('container');
 var localStream;
 var id = 'id123'
@@ -9,7 +10,6 @@ var id = 'id123'
 
 // 녹취를 시작하면 주기적으로 호출됨. 주기는 mediaRecorder.start(interval)함수의 매개변수로 설정
 function onRecordDataAvailable(blob, sourceType) {
-	recordWebSocket.binaryType = 'blob';
 
 	/*
 	var audioArrayBuffer;
@@ -42,17 +42,14 @@ function onRecordDataAvailable(blob, sourceType) {
 		});
 	});
 */
-	/*
+
 	var message = {
 		sourceType: sourceType,
 		id: id,
 		date: (new Date()).toISOString(),
 		blob: blob
 	};
-	recordWebSocket.send(JSON.stringify(message));
-    */
-
-	recordWebSocket.send(blob.audio);
+	socket.emit('data', message);
 }
 
 function onLocalRecordDataAvailable(blob) {
@@ -82,10 +79,8 @@ function startVideo() {
 				audio: true,
 				video: {
 					mandatory: {
-						minWidth: 32, //1280,
-						minHeight: 32, //720
-						maxWidth: 32,
-						maxHeight: 32
+						minWidth: 1280,
+						minHeight: 720
 					}
 				}
 			},
