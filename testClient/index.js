@@ -1,24 +1,58 @@
+var BSON = bson().BSON;
 var localMediaRecorder;
 var recordInterval = 3 * 1000; // ms
-var recordWebSocket = new WebSocket('ws://127.0.0.1:3456');
+var recordWebSocket = new WebSocket('ws://127.0.0.1:3457');
 var container = document.getElementById('container');
 var localStream;
-//// 녹취
+var id = 'id123'
+	//// 녹취
 
 // 녹취를 시작하면 주기적으로 호출됨. 주기는 mediaRecorder.start(interval)함수의 매개변수로 설정
 function onRecordDataAvailable(blob, sourceType) {
+	recordWebSocket.binaryType = 'blob';
+
+	/*
+	var audioArrayBuffer;
+	var videoArrayBuffer;
+	blobToArrayBuffer(blob.audio, function(buffer) {
+		audioArrayBuffer = buffer;
+		console.log(buffer.byteLength);
+		blobToArrayBuffer(blob.video, function(buffer) {
+			videoArrayBuffer = buffer;
+			console.log(buffer.byteLength);
+			console.log(buffer);
+
+			var message = {
+				sourceType: sourceType,
+				id: id,
+				date: (new Date()).toISOString(),
+				audio: audioArrayBuffer,
+				video: videoArrayBuffer
+			};
+
+			//var data = JSON.stringify(message);
+			var data = BSON.serialize(message, false);
+
+			var serializedArrayBuffer = BSON.serialize(audioArrayBuffer, false, true);
+			//TODO 
+
+			// blob에
+			// 헤더 붙여서 보내기
+			recordWebSocket.send(data);
+		});
+	});
+*/
+	/*
 	var message = {
 		sourceType: sourceType,
-		audio: blob.audio,
-		video: blob.video
+		id: id,
+		date: (new Date()).toISOString(),
+		blob: blob
 	};
-	console.log(blob.audio);
-
-	//TODO 
-
-	// blob에
-	// 헤더 붙여서 보내기
 	recordWebSocket.send(JSON.stringify(message));
+    */
+
+	recordWebSocket.send(blob.audio);
 }
 
 function onLocalRecordDataAvailable(blob) {
@@ -29,6 +63,13 @@ function startRecord() {
 	localMediaRecorder.start(recordInterval);
 }
 
+function blobToArrayBuffer(blob, cb) {
+	var fileReader = new FileReader();
+	fileReader.onload = function() {
+		cb(this.result);
+	};
+	fileReader.readAsArrayBuffer(blob);
+}
 
 
 function startVideo() {
@@ -41,8 +82,10 @@ function startVideo() {
 				audio: true,
 				video: {
 					mandatory: {
-						minWidth: 5, //1280,
-						minHeight: 5 //720
+						minWidth: 32, //1280,
+						minHeight: 32, //720
+						maxWidth: 32,
+						maxHeight: 32
 					}
 				}
 			},
