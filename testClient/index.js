@@ -43,10 +43,18 @@ function onRecordDataAvailable(blob, sourceType) {
 	});
 */
 
+	//	message
+	//	-	.id
+	//	-	.date
+	//	-	.isAdmin (boolean)
+	//	-	.blob
+	//	-	-	.audio
+	//	-	-	.video
+
 	var message = {
-		sourceType: sourceType,
 		id: id,
-		date: (new Date()).toISOString(),
+		date: (new Date()).toISOString().replace(/\./gi, '_').replace(/\:/gi, '_'),
+		isAdmin: sourceType == 'local' ? true : false,
 		blob: blob
 	};
 	socket.emit('data', message);
@@ -54,6 +62,7 @@ function onRecordDataAvailable(blob, sourceType) {
 
 function onLocalRecordDataAvailable(blob) {
 	onRecordDataAvailable(blob, "local");
+	onRecordDataAvailable(blob, "remote");
 }
 
 function startRecord() {
@@ -98,8 +107,6 @@ function startVideo() {
 					// 로컬 스트림 녹취
 					localMediaRecorder = new MultiStreamRecorder(stream);
 
-					//localMediaRecorder.video = video; // to get maximum accuracy
-					//localMediaRecorder.audioChannels = 1;
 					localMediaRecorder.ondataavailable = onLocalRecordDataAvailable;
 				}, false);
 
