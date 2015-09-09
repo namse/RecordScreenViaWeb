@@ -75,7 +75,7 @@ io.on('connection', function(socket) {
 
 			var audioFileName = fileName + '.' + audioExtension;
 			var videoFileName = fileName + '.webm';
-			var muxedFileName = fileName + '_mux.' + '.webm'
+			var muxedFileName = fileName + '_mux' + '.webm'
 
 			console.log(audioFileName);
 			console.log(videoFileName);
