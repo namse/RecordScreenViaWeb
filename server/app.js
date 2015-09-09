@@ -16,6 +16,12 @@ var exec = child_process.exec;
 var https = require('https');
 var url = require('url');
 
+var privateKey = fs.readFileSync('sslcert/key.pem', 'utf8');
+var certificate = fs.readFileSync('sslcert/.cert.pem', 'utf8');
+var credentials = {
+	key: privateKey,
+	cert: certificate
+};
 
 function puts(error, stdout, stderr) {
 	stdout ? console.log('stdout: ' + stdout) : null;
@@ -141,7 +147,7 @@ app.set('view engine', 'ejs');
 // routes ======================================================================
 require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
 // launch ======================================================================
-https.createServer(options, app).listen(app.get('port'));
+https.createServer(app).listen(app.get('port'));
 
 
 /*
