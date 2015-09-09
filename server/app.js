@@ -8,20 +8,39 @@ var UPLOAD_PATH = 'uploads';
 var INDEX_FILE_NAME = "files.txt";
 var ADMIN_SUFFIX = 'admin';
 var USER_SUFFIX = 'user';
-var SOCKET_IO_PORT = 3456;
-var DISPLAY_PORT = 4567;
-var io = require('socket.io')(SOCKET_IO_PORT);
+var PORT = 3456;
 var child_process = require('child_process');
 var exec = child_process.exec;
 var https = require('https');
 var url = require('url');
 
-var privateKey = fs.readFileSync('sslcert/key.pem', 'utf8');
-var certificate = fs.readFileSync('sslcert/cert.pem', 'utf8');
 var credentials = {
-	key: privateKey,
-	cert: certificate
+	key: fs.readFileSync('./ssl/server.key'),
+	cert: fs.readFileSync('./ssl/server.crt'),
+	ca: fs.readFileSync('./ssl/ca.crt'),
+	requestCert: true,
+	rejectUnauthorized: false
 };
+
+
+// display part
+///////////////////////////////
+
+app.use(express.static(__dirname + '/uploads'));
+app.set('port', PORT);
+// views is directory for all template files
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+// routes ======================================================================
+require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
+// launch ======================================================================
+var server = https.createServer(credentials, app);
+var io = require('socket.io')(server);
+server.listen(app.get('port'));
+
+
+
+
 
 function puts(error, stdout, stderr) {
 	stdout ? console.log('stdout: ' + stdout) : null;
@@ -90,7 +109,7 @@ io.on('connection', function(socket) {
 				saveMedia(data.blob.video, videoFileName, uploadFolderDirectory, function() {
 					// mux audio and video
 					var muxCommand = 'ffmpeg -loglevel error -t 5 -i ' + path.join(uploadFolderDirectory, videoFileName) +
-						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 -acodec copy -vcodec copy ' + path.join(uploadFolderDirectory, muxedFileName);
+						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 ' + path.join(uploadFolderDirectory, muxedFileName);
 					exec_cb(muxCommand, function() {
 						// save index on index meta data file.	
 						var indexFileName = data.isAdmin === true ? ADMIN_SUFFIX + '_' + INDEX_FILE_NAME : USER_SUFFIX + '_' + INDEX_FILE_NAME;
@@ -136,18 +155,6 @@ function saveMedia(data, fileName, folderPath, callback) {
 	});
 }
 
-// display part
-///////////////////////////////
-
-app.use(express.static(__dirname + '/uploads'));
-app.set('port', DISPLAY_PORT);
-// views is directory for all template files
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-// routes ======================================================================
-require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
-// launch ======================================================================
-https.createServer(app).listen(app.get('port'));
 
 
 /*
