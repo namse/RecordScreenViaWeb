@@ -13,7 +13,7 @@ var DISPLAY_PORT = 4567;
 var io = require('socket.io')(SOCKET_IO_PORT);
 var child_process = require('child_process');
 var exec = child_process.exec;
-var http = require('http');
+var https = require('https');
 var url = require('url');
 
 
@@ -84,7 +84,7 @@ io.on('connection', function(socket) {
 				saveMedia(data.blob.video, videoFileName, uploadFolderDirectory, function() {
 					// mux audio and video
 					var muxCommand = 'ffmpeg -loglevel error -t 5 -i ' + path.join(uploadFolderDirectory, videoFileName) +
-						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 -acodec copy -vcodec copy' + path.join(uploadFolderDirectory, muxedFileName);
+						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 -acodec copy -vcodec copy ' + path.join(uploadFolderDirectory, muxedFileName);
 					exec_cb(muxCommand, function() {
 						// save index on index meta data file.	
 						var indexFileName = data.isAdmin === true ? ADMIN_SUFFIX + '_' + INDEX_FILE_NAME : USER_SUFFIX + '_' + INDEX_FILE_NAME;
@@ -141,9 +141,7 @@ app.set('view engine', 'ejs');
 // routes ======================================================================
 require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
 // launch ======================================================================
-app.listen(app.get('port'), function() {
-	console.log('Node app is running on port', app.get('port'));
-});
+https.createServer(options, app).listen(app.get('port'));
 
 
 /*
