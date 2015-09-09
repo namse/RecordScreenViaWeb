@@ -85,7 +85,7 @@ io.on('connection', function(socket) {
 		}
 
 		// make directory
-		uploadFolderDirectory = path.join(__dirname, UPLOAD_PATH + "/" + id + "/" + firstDate);
+		uploadFolderDirectory = path.join(__dirname, UPLOAD_PATH + "/recording/" + id + "/" + firstDate);
 		mkDir(uploadFolderDirectory, function() {
 
 			// save media
@@ -108,8 +108,8 @@ io.on('connection', function(socket) {
 			saveMedia(data.blob.audio, audioFileName, uploadFolderDirectory, function() {
 				saveMedia(data.blob.video, videoFileName, uploadFolderDirectory, function() {
 					// mux audio and video
-					var muxCommand = 'ffmpeg -loglevel error -t 5 -i ' + path.join(uploadFolderDirectory, videoFileName) +
-						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 ' + path.join(uploadFolderDirectory, muxedFileName);
+					var muxCommand = 'ffmpeg -loglevel error -t 5 -i \'' + path.join(uploadFolderDirectory, videoFileName) +
+						'\' -t 5 -i \'' + path.join(uploadFolderDirectory, audioFileName) + '\' -map 0:0 -map 1:0 \'' + path.join(uploadFolderDirectory, muxedFileName) + '\'';
 					exec_cb(muxCommand, function() {
 						// save index on index meta data file.	
 						var indexFileName = data.isAdmin === true ? ADMIN_SUFFIX + '_' + INDEX_FILE_NAME : USER_SUFFIX + '_' + INDEX_FILE_NAME;
@@ -135,8 +135,11 @@ io.on('connection', function(socket) {
 			var adminIndexFileName = ADMIN_SUFFIX + '_' + INDEX_FILE_NAME;
 			var userIndexFileName = USER_SUFFIX + '_' + INDEX_FILE_NAME;
 
-			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, adminIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, id + '/' + adminOutputfileName), puts);
-			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, userIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, id + '/' + userOutputfileName), puts);
+			var finishedVideoFolder = path.join(__dirname, UPLOAD_PATH + "/finished/" + id);
+			mkDir(finishedVideoFolder, function() {
+				exec('ffmpeg -loglevel error -f concat -i \'' + path.join(uploadFolderDirectory, adminIndexFileName) + '\' -c copy \'' + path.join(finishedVideoFolder, adminOutputfileName) + '\'', puts);
+				exec('ffmpeg -loglevel error -f concat -i \'' + path.join(uploadFolderDirectory, userIndexFileName) + '\' -c copy \'' + path.join(finishedVideoFolder, userOutputfileName) + '\'', puts);
+			});
 		}
 	});
 });
