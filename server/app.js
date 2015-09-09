@@ -8,10 +8,13 @@ var UPLOAD_PATH = 'uploads';
 var INDEX_FILE_NAME = "files.txt";
 var ADMIN_SUFFIX = 'admin';
 var USER_SUFFIX = 'user';
-var port = 3456
-var io = require('socket.io')(port);
+var SOCKET_IO_PORT = 3456;
+var DISPLAY_PORT = 4567;
+var io = require('socket.io')(SOCKET_IO_PORT);
 var child_process = require('child_process');
 var exec = child_process.exec;
+var http = require('http');
+var url = require('url');
 
 
 function puts(error, stdout, stderr) {
@@ -57,7 +60,7 @@ io.on('connection', function(socket) {
 		}
 
 		// make directory
-		uploadFolderDirectory = path.join(__dirname, UPLOAD_PATH + "/" + id + "_" + firstDate);
+		uploadFolderDirectory = path.join(__dirname, UPLOAD_PATH + "/" + id + "/" + firstDate);
 		mkDir(uploadFolderDirectory, function() {
 
 			// save media
@@ -107,8 +110,8 @@ io.on('connection', function(socket) {
 			var adminIndexFileName = ADMIN_SUFFIX + '_' + INDEX_FILE_NAME;
 			var userIndexFileName = USER_SUFFIX + '_' + INDEX_FILE_NAME;
 
-			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, adminIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, adminOutputfileName), puts);
-			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, userIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, userOutputfileName), puts);
+			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, adminIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, id + '/' + adminOutputfileName), puts);
+			exec('ffmpeg -loglevel error -f concat -i ' + path.join(uploadFolderDirectory, userIndexFileName) + ' -c copy ' + path.join(UPLOAD_PATH, id + '/' + userOutputfileName), puts);
 		}
 	});
 });
@@ -127,15 +130,66 @@ function saveMedia(data, fileName, folderPath, callback) {
 	});
 }
 
+// display part
+///////////////////////////////
+
+app.use(express.static(__dirname + '/uploads'));
+app.set('port', DISPLAY_PORT);
+// views is directory for all template files
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+// routes ======================================================================
+require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
+// launch ======================================================================
+app.listen(app.get('port'), function() {
+	console.log('Node app is running on port', app.get('port'));
+});
+
+
+/*
+http.createServer(function(req, res) {
+	if (req.url != "/movie.mp4") {
+		res.writeHead(200, {
+			"Content-Type": "text/html"
+		});
+		res.end('<video src="http://localhost:8888/movie.mp4" controls></video>');
+	} else {
+		var file = path.resolve(__dirname, "movie.mp4");
+		var range = req.headers.range;
+		var positions = range.replace(/bytes=/, "").split("-");
+		var start = parseInt(positions[0], 10);
+
+		fs.stat(file, function(err, stats) {
+			var total = stats.size;
+			var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+			var chunksize = (end - start) + 1;
+
+			res.writeHead(206, {
+				"Content-Range": "bytes " + start + "-" + end + "/" + total,
+				"Accept-Ranges": "bytes",
+				"Content-Length": chunksize,
+				"Content-Type": "video/mp4"
+			});
+
+			var stream = fs.createReadStream(file, {
+					start: start,
+					end: end
+				})
+				.on("open", function() {
+					stream.pipe(res);
+				}).on("error", function(err) {
+					res.end(err);
+				});
+		});
+	}
+}).listen(8888);
+*/
+
+
+
 // for test
 
-app.use("/", require('express').static(__dirname.replace('server', 'testClient')));
-
-var http = require('http').Server(app);
-http.listen(8080, function() {
-	console.log('listening on 8080');
-	//	open("http://localhost:8080");
-});
+app.use("/test", require('express').static(__dirname.replace('server', 'testClient')));
 
 
 
