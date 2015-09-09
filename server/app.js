@@ -84,7 +84,7 @@ io.on('connection', function(socket) {
 				saveMedia(data.blob.video, videoFileName, uploadFolderDirectory, function() {
 					// mux audio and video
 					var muxCommand = 'ffmpeg -loglevel error -t 5 -i ' + path.join(uploadFolderDirectory, videoFileName) +
-						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 ' + path.join(uploadFolderDirectory, muxedFileName);
+						' -t 5 -i ' + path.join(uploadFolderDirectory, audioFileName) + ' -map 0:0 -map 1:0 -acodec copy -vcodec copy' + path.join(uploadFolderDirectory, muxedFileName);
 					exec_cb(muxCommand, function() {
 						// save index on index meta data file.	
 						var indexFileName = data.isAdmin === true ? ADMIN_SUFFIX + '_' + INDEX_FILE_NAME : USER_SUFFIX + '_' + INDEX_FILE_NAME;
