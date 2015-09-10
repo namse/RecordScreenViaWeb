@@ -22,10 +22,10 @@
 								</tr>
 							</thead>
 							<tbody>
-								<% if(IDs) IDs.forEach(function(ID) { %>
+								<% if(ids) ids.forEach(function(id) { %>
 								<tr>
 									<td>
-										<a href='/record?id=<%= ID %>'><%= ID %></a>
+										<a href='/videolist?id=<%= id %>'><%= id %></a>
 									</td>
 								</tr>
 								<% }); %>

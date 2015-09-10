@@ -2,7 +2,7 @@ var BSON = bson().BSON;
 var localMediaRecorder;
 var recordInterval = 10 * 1000; // ms
 var socketIOPort = 3456;
-var socket = io('61.38.158.172:' + socketIOPort.toString());
+var socket = io('https://127.0.0.1:' + socketIOPort.toString());
 var container = document.getElementById('container');
 var localStream;
 var id = 'id123'

@@ -1,0 +1,52 @@
+<!-- views/viewer.ejs -->
+<!doctype html>
+<html>
+<head>
+
+	<% include ../partials/header %>
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+</head>
+<body>
+	<div id="wrapper">
+
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="page-header">녹취 재생</h1>
+					<div class="col-lg-6">
+						<video width="480" height="320" id="videoA">
+							<source src="<%= sourceA %>"></source>
+						</video>
+						<b>볼륨</b><input type="range" min="0" max="1" value="1" step="0.01" id="volumeA" />
+					</div>
+
+					<div class="col-lg-6">
+						<video width="480" height="320" id="videoB">
+							<source src="<%= sourceB %>"></source>
+						</video>
+						<b>볼륨</b><input type="range" min="0" max="1" value="1" step="0.01" id="volumeA" />
+					</div>
+
+					<br>
+
+					<div class "col-lg-12">
+						<input type="range" min="0" value="0" step="0.01" id="playtime" /><b class="playtime">0:00</b>
+						<input id="playToggle" type="checkbox" checked data-toggle="toggle" data-on="<i class='fa fa-play'></i> Play" data-off="<i class='fa fa-pause'></i> Pause">
+					</div>
+				</div>
+				<!-- /.col-lg-12 -->
+			</div>
+
+
+		</div>
+		<!-- /#page-wrapper -->
+
+	</div>
+	<!-- /#wrapper -->
+
+	<% include ../partials/footer %>
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+	<script src="js/popcorn-complete.min.js"></script>
+	<script src="js/view.js"></script>
+</body>
+</html>

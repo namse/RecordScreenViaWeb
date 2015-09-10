@@ -1,0 +1,58 @@
+<!-- views/index.ejs -->
+<!doctype html>
+<html>
+<head>
+
+	<% include ../partials/header %>
+
+</head>
+<body>
+	<div id="wrapper">
+
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="page-header"><%= id %>님의 녹취본 리스트</h1>
+
+					<div class="container col-lg-6">
+						<table class="table table-bordered table-hover table-striped">
+							<thead>
+								<tr>
+									<th>Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<% if(dates) dates.forEach(function(date) { 
+
+									//example
+									//012345678901234567890123
+									//2015-09-09T17_07_40_605Z
+									var isoDate = date.substr(0, 13) + ':' + date.substr(14, 2) + ':' + date.substr(17, 2) + '.' + date.substr(20);
+									var displayDate = new Date(isoDate).toString();%>
+									<tr>
+										<td>
+											<a href='/view?id=<%= id %>&date=<%= date %>'><%= displayDate %></a>
+
+										</td>
+									</tr>
+									<% }); %>
+								</tbody>
+							</table>
+
+
+
+						</div>
+					</div>
+					<!-- /.col-lg-12 -->
+				</div>
+
+
+			</div>
+			<!-- /#page-wrapper -->
+
+		</div>
+		<!-- /#wrapper -->
+
+		<% include ../partials/footer %>
+	</body>
+	</html>
