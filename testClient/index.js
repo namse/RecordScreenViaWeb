@@ -1,6 +1,6 @@
 var remoteStream;
 var localStream;
-var IP = "127.0.0.1";
+var IP = "61.38.158.172";
 var id = "abc123";
 
 var recordHelper = new RecordHelper(IP, id);

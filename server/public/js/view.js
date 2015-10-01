@@ -9,6 +9,7 @@ var videos = {
     loadCount = 0,
     events = "play pause timeupdate seeking".split(/\s+/g);
 
+playtime.attr("max", Math.min(videos.a.duration(), videos.b.duration()));
 // iterate both media sources
 Popcorn.forEach(videos, function(media, type) {
 
@@ -17,9 +18,8 @@ Popcorn.forEach(videos, function(media, type) {
 
         // trigger a custom "sync" event
         this.emit("sync");
-
-        // set the max value of the "playtime"
-        playtime.attr("max", this.duration());
+	
+	console.log(this.duration());
 
         // Listen for the custom sync event...    
     }).on("sync", function() {

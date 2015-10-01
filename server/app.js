@@ -13,7 +13,7 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var https = require('https');
 var url = require('url');
-
+var http = require('http');
 var credentials = {
 	key: fs.readFileSync('./ssl/server.key'),
 	cert: fs.readFileSync('./ssl/server.crt'),
@@ -28,13 +28,17 @@ app.use(express.static(__dirname + '/public'));
 
 app.use(express.static(__dirname + '/uploads'));
 app.set('port', PORT);
+
 // views is directory for all template files
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+
 // routes ======================================================================
 require('./routes.js')(app); // load our routes and pass in our app and fully configured passport
+
 // launch ======================================================================
-var server = https.createServer(credentials, app);
+//var server = https.createServer(credentials, app);
+var server = http.createServer(app);
 var io = require('socket.io')(server);
 server.listen(app.get('port'));
 
