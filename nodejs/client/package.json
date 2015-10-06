@@ -1,8 +1,0 @@
-{
-  "name": "RecordWebRTCToServer",
-  "version": "0.0.1",
-  "private": true,
-  "dependencies": {
-    "recordrtc-nodejs": "^1.0.0"
-  }
-}
